@@ -1,30 +1,5 @@
 ﻿#include "MySet.h"
 
-
-bool MyContainers::MySet<std::string>::add(const std::string& s) {
-	if (contains(s)) {
-		return false;
-	}
-	this->m_data.push_back(s);
-    return contains(s);
-}
-
-
-bool MyContainers::MySet<std::string>::contains(const std::string& s) const {
-	return std::find(this->m_data.begin(), this->m_data.end(), s) != this->m_data.end();
-}
-
-
-bool MyContainers::MySet<std::string>::remove(const std::string& s) {
-	if (!contains(s)) {
-		return false;
-	}
-	this->m_data.erase(std::remove(this->m_data.begin(), this->m_data.end(), s), this->m_data.end());
-	return !contains(s);
-}
-
-//=================================================================================================
-
 MyContainers::MySetV2<std::string>::MySetV2() :
     m_data(new std::string[m_capacity])
 {}

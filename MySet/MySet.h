@@ -9,28 +9,6 @@
 namespace MyContainers {
 
 	template <typename T>
-	class MySet;
-
-	// full template specialization, we doen het voor strings
-	template <>
-	class MySet <std::string> {
-	public:
-
-		bool add(const std::string& s);
-		bool contains(const std::string& s) const;
-		bool remove(const std::string& s);
-
-
-	private:
-		// ik weet niet of dit mag?:
-		// "It is up to you how you want to deal with the internal storage, but it is not allowed to just write a wrapper around std::set."
-		// Maar dit is een std vector, dit leek iets te makkelijk
-		std::vector<std::string> m_data;
-	};
-
-
-	// dit is denk ik de bedoeling
-	template <typename T>
 	class MySetV2;
 
 	template <>
