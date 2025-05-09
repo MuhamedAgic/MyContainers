@@ -4,6 +4,8 @@
 
 #include <iostream>
 #include <string>
+#include <typeinfo>
+
 
 namespace MyContainers {
 
@@ -39,6 +41,22 @@ namespace MyContainers {
             other.m_count = 0;
         }
 
+        MySet(std::initializer_list<T> ilist) :
+        m_capacity(ilist.size()),
+        m_count(0),
+        m_data(std::make_unique<T[]>(ilist.size())) {
+            for (const auto& val : ilist) {
+                add(val);
+            }
+        }
+
+
+        template<typename... Args>
+        bool emplace(Args&&... args) {
+            T value(std::forward<Args>(args)...);
+            return add(value);
+        }
+
 
         MySet<T>& operator = (const MySet<T>& other) {
             if (this == &other) {
@@ -72,17 +90,55 @@ namespace MyContainers {
 
 
         bool operator == (const MySet<T>& other) const {
-            // twijfel of capacity ook aan elkaar gelijk moet zijn
-            // ik ga nu voor: elementen moeten exact hetzelfde zijn in dezelfde volgorde
+            // when are sets equal:
+            // Their size is the same
+            // They contain exactly the same elements
+            // Order does not matter
             if (this->m_count != other.m_count) {
-                return false;   // niet gelijk als een set niet even veel elementen heeft
+                return false;
             }
             for (std::size_t i = 0; i < this->m_count; i++) {
-                if (this->m_data[i] != other.m_data[i]) { // is er iets niet aan elkaar gelijk
+                if (!contains(other.m_data[i])) {   // item from other not present in this
                     return false;
                 }
             }
             return true;
+        }
+
+
+        T& operator [] (std::size_t index) {
+            if (index >= m_count) {
+                throw std::out_of_range("Index out of range");
+            }
+            return this->m_data[index];
+        }
+
+
+        const T& operator [] (std::size_t index) const {
+            if (index >= m_count) {
+                throw std::out_of_range("Index out of range");
+            }
+            return this->m_data[index];
+        }
+
+
+        T* begin() {
+            return m_data.get();
+        }
+
+
+        T* end() {
+            return m_data.get() + m_count;
+        }
+
+
+        const T* begin() const {
+            return m_data.get();
+        }
+
+
+        const T* end() const {
+            return m_data.get() + m_count;
         }
 
 
@@ -101,11 +157,10 @@ namespace MyContainers {
         }
 
 
-        T at(std::size_t index) const {
-            if (index <= this->m_count) {
+        const T& at(std::size_t index) const {
+            if (index < this->m_count) {
                 return this->m_data[index];
             }
-            // mooier op te lossen denk ik met std::optional, maar die zit niet in C++-11, voor nu throwen
             throw std::out_of_range("The given index is out of range");
         }
 
@@ -127,7 +182,6 @@ namespace MyContainers {
 
 
         bool contains(const T& s) const {
-            // Alles 1x langs gaan
             for (std::size_t i = 0; i < this->m_count; i++) {
                 if (m_data[i] == s) {
                     return true;
@@ -149,7 +203,20 @@ namespace MyContainers {
         }
 
 
-	private:
+        void clear() {
+            this->m_count = 0;
+        }
+
+
+        void swap(MySet& other) noexcept {
+            std::swap(m_data, other.m_data);
+            std::swap(m_capacity, other.m_capacity);
+            std::swap(m_count, other.m_count);
+        }
+
+
+
+    private:
 		std::size_t m_capacity = 10;	// nr of allocated elements
 		std::size_t m_count = 0;		// nr of elements
 		std::unique_ptr<T[]> m_data;	// pointer to data
@@ -201,6 +268,8 @@ namespace MyContainers {
     template <typename T>
     std::ostream& operator<<(std::ostream& os, const MySet<T>& mySet) {
         os << "Address: " << &mySet << std::endl;
+        os << "Data start address: " << mySet.begin() << std::endl;
+        os << "Set of type: " << typeid(T).name() << std::endl;
         os << "Count: " << mySet.size() << std::endl;
         os << "Capacity: " << mySet.capacity() << std::endl;
         for (std::size_t i = 0; i < mySet.size(); ++i) {

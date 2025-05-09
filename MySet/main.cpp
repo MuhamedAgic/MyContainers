@@ -132,6 +132,20 @@ int main() {
 	set4 = set4;
 	std::cout << "set 4: " << std::endl << set4;
 
+    set2.swap(set4);
+    std::cout << "set 2: " << std::endl << set2;
+    std::cout << "set 4: " << std::endl << set4;
+
+    set4.clear();
+    std::cout << "set 4: " << std::endl << set4;
+
+    MyContainers::MySet<int> set7;
+    set7.emplace(42);
+    std::cout << "set 7: " << std::endl << set7;
+
+    MyContainers::MySet<float> set8 {43.0, 55.0, 55.0};
+    std::cout << "set 8: " << std::endl << set8;
+
 	// Benchmarking? ;p
 	benchmark(1'000'000);
 //	benchmark_std_set(1'000'000);
