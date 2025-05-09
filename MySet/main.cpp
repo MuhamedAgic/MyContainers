@@ -5,7 +5,7 @@
 
 
 void benchmark(int cycles) {
-	MyContainers::MySetV2<std::string> set;
+	MyContainers::MySet<std::string> set;
 	std::cout << "\nStarting MySet benchmark" << std::endl;
 
 	const auto strings = std::vector<std::string>{ "a", "b", "c", "d", "e" };
@@ -57,10 +57,9 @@ void benchmark_std_set(int cycles) {
 }
 
 
-int main()
-{
+int main() {
 	// create your set 
-	MyContainers::MySetV2<std::string> set;
+	MyContainers::MySet<std::string> set;
 	
 	// add some data 
 	set.add(std::string("Some data"));
@@ -98,7 +97,7 @@ int main()
 	
 	std::cout << std::endl << set;
 
-	MyContainers::MySetV2<std::string> set2 = set;
+	MyContainers::MySet<std::string> set2 = set;
 
 	std::cout << "set: " << std::endl << set;
 	std::cout << "set 2: " << std::endl << set2;
@@ -111,13 +110,13 @@ int main()
 	set.remove("10");
 
 	// moving
-	MyContainers::MySetV2<std::string> set3 = std::move(set);
+	MyContainers::MySet<std::string> set3 = std::move(set);
 	//std::cout << std::endl << set; // Error
 	std::cout << "set 3: " << std::endl << set3;
 
 	std::cout << "set2 == set3: " << (set2 == set3) << std::endl;
 
-	MyContainers::MySetV2<std::string> set4 = set3;
+	MyContainers::MySet<std::string> set4 = set3;
 	std::cout << "set3 == set4: " << (set3 == set4) << std::endl;
 
 	std::cout << "set 3: " << std::endl << set3;
@@ -135,7 +134,7 @@ int main()
 
 	// Benchmarking? ;p
 	benchmark(1'000'000);
-	benchmark_std_set(1'000'000);
+//	benchmark_std_set(1'000'000);
 
 	// check out of bounds
 	//std::cout << "element at index 100" << set4.at(100) << std::endl;

@@ -1,21 +1,25 @@
-﻿# CMakeList.txt : CMake project for MySet, include source and define
-# project specific logic here.
-#
-cmake_minimum_required (VERSION 3.8)
+﻿cmake_minimum_required(VERSION 3.14)
+project(MySet)
 
-# Enable Hot Reload for MSVC compilers if supported.
-if (POLICY CMP0141)
-  cmake_policy(SET CMP0141 NEW)
-  set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT "$<IF:$<AND:$<C_COMPILER_ID:MSVC>,$<CXX_COMPILER_ID:MSVC>>,$<$<CONFIG:Debug,RelWithDebInfo>:EditAndContinue>,$<$<CONFIG:Debug,RelWithDebInfo>:ProgramDatabase>>")
-endif()
+set(CMAKE_CXX_STANDARD 20)
 
-project ("MySet")
+# Main executable
+add_executable(MySet main.cpp MySet.h)
 
-# Add source to this project's executable.
-add_executable (MySet "MySet.cpp" "MySet.h" "main.cpp")
+# GoogleTest setup
+include(FetchContent)
+FetchContent_Declare(
+        googletest
+        URL https://github.com/google/googletest/archive/refs/tags/v1.14.0.zip
+        DOWNLOAD_EXTRACT_TIMESTAMP TRUE
+)
+set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+FetchContent_MakeAvailable(googletest)
 
-if (CMAKE_VERSION VERSION_GREATER 3.12)
-  set_property(TARGET MySet PROPERTY CXX_STANDARD 11)
-endif()
+enable_testing()
 
-# TODO: Add tests and install targets if needed.
+# Test executable
+add_executable(MySetTest MySetTest.cpp MySet.h)
+target_link_libraries(MySetTest gtest_main)
+
+add_test(NAME MySetUnitTests COMMAND MySetTest)
