@@ -178,5 +178,13 @@ TYPED_TEST(MySetTypedTest, InequalityOperatorWorks) {
     EXPECT_NE(s1, s2);
 }
 
+TYPED_TEST(MySetTypedTest, EqualityOperatorWorks) {
+    MySet<TypeParam> s1, s2;
+    TypeParam val1 = TestFixture::sample_value();
+    s1.add(val1);
+    s2.add(val1);
+    EXPECT_EQ(s1, s2);
+}
+
 
 

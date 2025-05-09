@@ -12,18 +12,20 @@ namespace MyContainers {
 	public:
 
         MySet() :
-            m_data(new T[m_capacity])
+            m_data(std::make_unique<T[]>(m_capacity))
         {}
 
 
         explicit MySet(int capacity) :
             m_capacity(capacity),
-            m_data(new T[m_capacity])
+            m_data(std::make_unique<T[]>(m_capacity))
         {}
 
 
         MySet(const MySet<T>& other) :
-            m_data(new T[m_capacity]) {
+            m_capacity(other.m_capacity),
+            m_count(other.m_count),
+            m_data(std::make_unique<T[]>(m_capacity)) {
             other.copy_to(*this);
         }
 
@@ -31,27 +33,16 @@ namespace MyContainers {
         MySet(MySet<T>&& other)  noexcept :
                 m_capacity(other.m_capacity),
                 m_count(other.m_count),
-                m_data(other.m_data) {
+                m_data(std::move(other.m_data)) {
             other.m_data = nullptr;
-        }
-
-
-        ~MySet() {
-            std::cout << "Destructing MySet instance: " << this << std::endl;
-            delete[] m_data;
-            m_capacity = 0;
-            m_count = 0;
+            other.m_capacity = 0;
+            other.m_count = 0;
         }
 
 
         MySet<T>& operator = (const MySet<T>& other) {
-            if (this == &other) {   // check of die aan zichzelf assigned
+            if (this == &other) {
                 return *this;
-            }
-
-            if (this->m_data != nullptr) {
-                delete[] this->m_data;
-                this->m_data = new T[other.m_capacity];
             }
 
             other.copy_to(*this);
@@ -65,16 +56,14 @@ namespace MyContainers {
 
 
         MySet<T>& operator = (MySet<T>&& other)  noexcept {
-            if (this == &other) {   // check of die aan zichzelf assigned
+            if (this == &other) {
                 return *this;
             }
 
-            delete[] this->m_data;
             this->m_capacity = other.m_capacity;
             this->m_count = other.m_count;
-            this->m_data = other.m_data;
+            this->m_data = std::move(other.m_data);
 
-            other.m_data = nullptr;
             other.m_capacity = 0;
             other.m_count = 0;
 
@@ -163,7 +152,7 @@ namespace MyContainers {
 	private:
 		std::size_t m_capacity = 10;	// nr of allocated elements
 		std::size_t m_count = 0;		// nr of elements
-		T* m_data = nullptr;	// pointer to data
+		std::unique_ptr<T[]> m_data;	// pointer to data
 
 
         void shift(std::size_t index) {
@@ -196,24 +185,13 @@ namespace MyContainers {
 
         bool expand() {
             std::size_t new_capacity = this->m_capacity * 2; // even simpel capaciteit verdubbelen
-            T* new_data = nullptr;
-
-            try {
-                new_data = new T[new_capacity];
-            }
-            catch (const std::exception& e) {
-                std::cout << "Could not resize MySet from " << this->m_capacity << " to " << new_capacity << std::endl;
-                std::cout << "Exception: " << e.what() << std::endl;
-                return false;
-            }
+            auto new_data = std::make_unique<T[]>(new_capacity);
 
             for (std::size_t i = 0; i < this->m_count; i++) {
                 new_data[i] = std::move(this->m_data[i]);
             }
 
-            // oude data verwijderen en members updaten
-            delete[] this->m_data;
-            this->m_data = new_data;
+            this->m_data = std::move(new_data);
             this->m_capacity = new_capacity;
 
             return true;
