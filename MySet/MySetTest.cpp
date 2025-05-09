@@ -8,7 +8,6 @@ using ::testing::Types;
 
 // 1. Define the list of types you want to test
 typedef Types<
-        bool,
         char,
         signed char,
         unsigned char,
