@@ -9,22 +9,23 @@
 
 namespace MyContainers {
 
+    // To be even more robust, you can restrict UnorderedSet<T> to types that are EqualityComparable and MoveConstructible using concepts or static_assert.
 	template <typename T>
-	class MySet {
+	class UnorderedSet {
 	public:
 
-        MySet() :
+        UnorderedSet() :
             m_data(std::make_unique<T[]>(m_capacity))
         {}
 
 
-        explicit MySet(int capacity) :
+        explicit UnorderedSet(int capacity) :
             m_capacity(capacity),
             m_data(std::make_unique<T[]>(m_capacity))
         {}
 
 
-        MySet(const MySet<T>& other) :
+        UnorderedSet(const UnorderedSet<T>& other) :
             m_capacity(other.m_capacity),
             m_count(other.m_count),
             m_data(std::make_unique<T[]>(m_capacity)) {
@@ -32,16 +33,15 @@ namespace MyContainers {
         }
 
 
-        MySet(MySet<T>&& other)  noexcept :
+        UnorderedSet(UnorderedSet<T>&& other)  noexcept :
                 m_capacity(other.m_capacity),
                 m_count(other.m_count),
                 m_data(std::move(other.m_data)) {
-            other.m_data = nullptr;
             other.m_capacity = 0;
             other.m_count = 0;
         }
 
-        MySet(std::initializer_list<T> ilist) :
+        UnorderedSet(std::initializer_list<T> ilist) :
         m_capacity(ilist.size()),
         m_count(0),
         m_data(std::make_unique<T[]>(ilist.size())) {
@@ -58,7 +58,7 @@ namespace MyContainers {
         }
 
 
-        MySet<T>& operator = (const MySet<T>& other) {
+        UnorderedSet<T>& operator = (const UnorderedSet<T>& other) {
             if (this == &other) {
                 return *this;
             }
@@ -73,7 +73,7 @@ namespace MyContainers {
         }
 
 
-        MySet<T>& operator = (MySet<T>&& other)  noexcept {
+        UnorderedSet<T>& operator = (UnorderedSet<T>&& other)  noexcept {
             if (this == &other) {
                 return *this;
             }
@@ -89,7 +89,7 @@ namespace MyContainers {
         }
 
 
-        bool operator == (const MySet<T>& other) const {
+        bool operator == (const UnorderedSet<T>& other) const {
             // when are sets equal:
             // Their size is the same
             // They contain exactly the same elements
@@ -142,7 +142,7 @@ namespace MyContainers {
         }
 
 
-        bool operator != (const MySet<T>& other) const {
+        bool operator != (const UnorderedSet<T>& other) const {
             return !(*this == other);
         }
 
@@ -165,19 +165,19 @@ namespace MyContainers {
         }
 
 
-        bool add(const T& s) {
+        template<typename U>
+        bool add(U&& s) {
             if (contains(s)) {
-                return false;   // mag niet worden ge-add
+                return false;
             }
 
             if (needs_expansion()) {
                 expand();
             }
 
-            m_data[m_count] = std::move(s);
+            m_data[m_count] = std::forward<U>(s);
             ++m_count;
-
-            return contains(s);
+            return true;
         }
 
 
@@ -192,14 +192,14 @@ namespace MyContainers {
 
 
         bool remove(const T& s) {
-            for (std::size_t i = 0; i <= m_count; i++) {
-                if (m_data[i] == s) { // als we s hebben gevonden
-                    shift(i);               // alles een plekje opschuiven om gat te vullen
+            for (std::size_t i = 0; i < m_count; i++) {
+                if (m_data[i] == s) {
+                    m_data[i] = std::move(m_data[m_count - 1]); // move last element to this spot
                     --m_count;
                     return true;
                 }
             }
-            return false;   // s niet gevonden
+            return false;
         }
 
 
@@ -208,12 +208,55 @@ namespace MyContainers {
         }
 
 
-        void swap(MySet& other) noexcept {
+        void swap(UnorderedSet& other) noexcept {
             std::swap(m_data, other.m_data);
             std::swap(m_capacity, other.m_capacity);
             std::swap(m_count, other.m_count);
         }
 
+
+        T* find(const T& element) {
+            for (std::size_t i = 0; i < m_count; i++) {
+                if (m_data[i] == element) {
+                    return m_data.get() + i;
+                }
+            }
+            return m_data.get() + m_count; // end
+        }
+
+
+        const T* find(const T& element) const {
+            for (std::size_t i = 0; i < m_count; i++) {
+                if (m_data[i] == element) {
+                    return m_data.get() + i;
+                }
+            }
+            return m_data.get() + m_count; // end
+        }
+
+
+        void reserve(std::size_t n) {
+            if (n < m_capacity) {
+                return;
+            }
+
+            auto new_data = std::make_unique<T[]>(n);
+            for (std::size_t i = 0; i < m_count; i++) {
+                new_data[i] = std::move(m_data[i]);
+            }
+
+            m_data = std::move(new_data);
+            m_capacity = n;
+        }
+
+
+        bool shrink_to_fit() {
+            if (m_count < m_capacity) {
+                m_capacity = m_count;
+                return true;
+            }
+            return false;
+        }
 
 
     private:
@@ -222,25 +265,17 @@ namespace MyContainers {
 		std::unique_ptr<T[]> m_data;	// pointer to data
 
 
-        void shift(std::size_t index) {
-            while(index < m_count) { // alles een plekje naar links schuiven, vul memory gat
-                m_data[index] = std::move(m_data[index + 1]);
-                ++index;
-            }
-        }
-
-
-        bool copy_to(MySet<T>& other) const {
-            // kopieert data van this naar de ander
-            while (other.m_capacity < m_count) { // deze set heeft meer elementen dan de ander kan opvangen
+        bool copy_to(UnorderedSet<T>& other) const {
+            // copies data from this to the other
+            while (other.m_capacity < m_count) {
                 other.expand();
             }
-            for (std::size_t i = 0; i <= m_count; i++) {
+
+            for (std::size_t i = 0; i < m_count; i++) {
                 other.m_data[i] = m_data[i];
             }
-            other.m_count = m_count;
-            other.m_capacity = m_capacity;
 
+            other.m_count = m_count;
             return (*this == other);
         }
 
@@ -266,16 +301,20 @@ namespace MyContainers {
     };
 
     template <typename T>
-    std::ostream& operator<<(std::ostream& os, const MySet<T>& mySet) {
+    std::ostream& operator<<(std::ostream& os, const UnorderedSet<T>& mySet) {
         os << "Address: " << &mySet << std::endl;
         os << "Data start address: " << mySet.begin() << std::endl;
         os << "Set of type: " << typeid(T).name() << std::endl;
         os << "Count: " << mySet.size() << std::endl;
         os << "Capacity: " << mySet.capacity() << std::endl;
+        os << "Contents: {";
         for (std::size_t i = 0; i < mySet.size(); ++i) {
-            os << "Element " << i << ": " << mySet.at(i) << std::endl;
+            os << mySet.at(i);
+            if (i < mySet.size() - 1) {
+                os << ", ";
+            }
         }
-        os << std::endl;
+        os << "}\n";
         return os;
     }
 

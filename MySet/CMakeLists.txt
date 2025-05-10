@@ -4,7 +4,7 @@ project(MySet)
 set(CMAKE_CXX_STANDARD 20)
 
 # Main executable
-add_executable(MySet main.cpp MySet.h)
+add_executable(MySet main.cpp UnorderedSet.h)
 
 # GoogleTest setup
 include(FetchContent)
@@ -19,7 +19,7 @@ FetchContent_MakeAvailable(googletest)
 enable_testing()
 
 # Test executable
-add_executable(MySetTest MySetTest.cpp MySet.h)
+add_executable(MySetTest MySetTest.cpp UnorderedSet.h)
 target_link_libraries(MySetTest gtest_main)
 
 add_test(NAME MySetUnitTests COMMAND MySetTest)

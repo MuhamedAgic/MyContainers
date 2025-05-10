@@ -1,12 +1,12 @@
 #include <chrono>
 #include <iostream>
 #include <set>
-#include "MySet.h"
+#include "UnorderedSet.h"
 
 
 void benchmark(int cycles) {
-	MyContainers::MySet<std::string> set;
-	std::cout << "\nStarting MySet benchmark" << std::endl;
+	MyContainers::UnorderedSet<std::string> set;
+	std::cout << "\nStarting UnorderedSet benchmark" << std::endl;
 
 	const auto strings = std::vector<std::string>{ "a", "b", "c", "d", "e" };
 	const int strings_size = strings.size(); // so i dont ask for the size every loop
@@ -14,7 +14,7 @@ void benchmark(int cycles) {
 	std::chrono::high_resolution_clock::time_point start = std::chrono::high_resolution_clock::now();
 	for (int i = 0; i < cycles; i++) {
 		// add all strings, try to add them all again, remove all strings
-		// so we execute every method of the MySet class (add, contains and remove)
+		// so we execute every method of the UnorderedSet class (add, contains and remove)
 		for (int j = 1; j < strings_size; j++) {
 			set.add(strings[j]);
 		}
@@ -59,7 +59,7 @@ void benchmark_std_set(int cycles) {
 
 int main() {
 	// create your set 
-	MyContainers::MySet<std::string> set;
+	MyContainers::UnorderedSet<std::string> set;
 	
 	// add some data 
 	set.add(std::string("Some data"));
@@ -97,7 +97,7 @@ int main() {
 	
 	std::cout << std::endl << set;
 
-	MyContainers::MySet<std::string> set2 = set;
+	MyContainers::UnorderedSet<std::string> set2 = set;
 
 	std::cout << "set: " << std::endl << set;
 	std::cout << "set 2: " << std::endl << set2;
@@ -110,13 +110,13 @@ int main() {
 	set.remove("10");
 
 	// moving
-	MyContainers::MySet<std::string> set3 = std::move(set);
+	MyContainers::UnorderedSet<std::string> set3 = std::move(set);
 	//std::cout << std::endl << set; // Error
 	std::cout << "set 3: " << std::endl << set3;
 
 	std::cout << "set2 == set3: " << (set2 == set3) << std::endl;
 
-	MyContainers::MySet<std::string> set4 = set3;
+	MyContainers::UnorderedSet<std::string> set4 = set3;
 	std::cout << "set3 == set4: " << (set3 == set4) << std::endl;
 
 	std::cout << "set 3: " << std::endl << set3;
@@ -139,12 +139,18 @@ int main() {
     set4.clear();
     std::cout << "set 4: " << std::endl << set4;
 
-    MyContainers::MySet<int> set7;
+    MyContainers::UnorderedSet<int> set7;
     set7.emplace(42);
     std::cout << "set 7: " << std::endl << set7;
 
-    MyContainers::MySet<float> set8 {43.0, 55.0, 55.0};
+    MyContainers::UnorderedSet<float> set8 {43.0, 55.0, 55.0};
     std::cout << "set 8: " << std::endl << set8;
+
+    auto elemPtr = set8.find(55.0);
+    std::cout << "elemPtr: " << elemPtr << ", elem val: " << *elemPtr << std::endl;
+
+    const float* elemPtr2 = set8.find(43.0);
+    std::cout << "elemPtr: " << elemPtr2 << ", elem val: " << *elemPtr2 << std::endl;
 
 	// Benchmarking? ;p
 	benchmark(1'000'000);

@@ -1,6 +1,6 @@
 
 #include <gtest/gtest.h>
-#include "MySet.h"
+#include "UnorderedSet.h"
 
 using namespace MyContainers;
 
@@ -51,7 +51,7 @@ TYPED_TEST_SUITE(MySetTypedTest, MySetTypes);
 
 // 3. Write tests using TYPED_TEST
 TYPED_TEST(MySetTypedTest, InsertAddsElement) {
-    MySet<TypeParam> s; // TypeParam is a special name provided by Google Test inside typed tests; it refers to the current type being tested
+    UnorderedSet<TypeParam> s; // TypeParam is a special name provided by Google Test inside typed tests; it refers to the current type being tested
     TypeParam val = TestFixture::sample_value();
     EXPECT_TRUE(s.add(val));
     EXPECT_TRUE(s.contains(val));
@@ -59,7 +59,7 @@ TYPED_TEST(MySetTypedTest, InsertAddsElement) {
 }
 
 TYPED_TEST(MySetTypedTest, InsertDuplicateDoesNotIncreaseSize) {
-    MySet<TypeParam> s;
+    UnorderedSet<TypeParam> s;
     TypeParam val = TestFixture::sample_value();
     EXPECT_TRUE(s.add(val));
     EXPECT_FALSE(s.add(val));
@@ -68,7 +68,7 @@ TYPED_TEST(MySetTypedTest, InsertDuplicateDoesNotIncreaseSize) {
 }
 
 TYPED_TEST(MySetTypedTest, RemoveDecreasesElement) {
-    MySet<TypeParam> s;
+    UnorderedSet<TypeParam> s;
     TypeParam val = TestFixture::sample_value();
     EXPECT_TRUE(s.add(val));
     EXPECT_TRUE(s.contains(val));
@@ -79,7 +79,7 @@ TYPED_TEST(MySetTypedTest, RemoveDecreasesElement) {
 }
 
 TYPED_TEST(MySetTypedTest, EmptySetBehavesCorrectly) {
-    MySet<TypeParam> s;
+    UnorderedSet<TypeParam> s;
     TypeParam val = TestFixture::sample_value();
     EXPECT_EQ(s.size(), 0);
     EXPECT_FALSE(s.contains(val));
@@ -87,7 +87,7 @@ TYPED_TEST(MySetTypedTest, EmptySetBehavesCorrectly) {
 }
 
 TYPED_TEST(MySetTypedTest, InsertMultipleElements) {
-    MySet<TypeParam> s;
+    UnorderedSet<TypeParam> s;
     TypeParam val1 = TestFixture::sample_value();
     TypeParam val2 = val1;
     if constexpr (std::is_same_v<TypeParam, std::string>) {
@@ -103,7 +103,7 @@ TYPED_TEST(MySetTypedTest, InsertMultipleElements) {
 }
 
 TYPED_TEST(MySetTypedTest, RemoveNonexistentElementDoesNothing) {
-    MySet<TypeParam> s;
+    UnorderedSet<TypeParam> s;
     TypeParam val1 = TestFixture::sample_value();
     TypeParam val2 = val1;
     if constexpr (std::is_same_v<TypeParam, std::string>) {
@@ -119,7 +119,7 @@ TYPED_TEST(MySetTypedTest, RemoveNonexistentElementDoesNothing) {
 }
 
 TYPED_TEST(MySetTypedTest, HandlesManyElements) {
-    MySet<TypeParam> s;
+    UnorderedSet<TypeParam> s;
     // Insert more elements than the default capacity
     for (std::size_t i = 0; i < 20; ++i) {
         TypeParam val;
@@ -135,20 +135,20 @@ TYPED_TEST(MySetTypedTest, HandlesManyElements) {
 }
 
 TYPED_TEST(MySetTypedTest, CopyConstructorCreatesEqualSet) {
-    MySet<TypeParam> s;
+    UnorderedSet<TypeParam> s;
     TypeParam val = TestFixture::sample_value();
     EXPECT_TRUE(s.add(val));
-    MySet<TypeParam> copy(s);
+    UnorderedSet<TypeParam> copy(s);
     EXPECT_TRUE(copy.contains(val));
     EXPECT_EQ(copy.size(), s.size());
     EXPECT_EQ(copy, s);
 }
 
 TYPED_TEST(MySetTypedTest, AssignmentOperatorCreatesEqualSet) {
-    MySet<TypeParam> s;
+    UnorderedSet<TypeParam> s;
     TypeParam val = TestFixture::sample_value();
     EXPECT_TRUE(s.add(val));
-    MySet<TypeParam> copy;
+    UnorderedSet<TypeParam> copy;
     copy = s;
     EXPECT_TRUE(copy.contains(val));
     EXPECT_EQ(copy.size(), s.size());
@@ -156,7 +156,7 @@ TYPED_TEST(MySetTypedTest, AssignmentOperatorCreatesEqualSet) {
 }
 
 TYPED_TEST(MySetTypedTest, SelfAssignmentDoesNotChangeSet) {
-    MySet<TypeParam> s;
+    UnorderedSet<TypeParam> s;
     TypeParam val = TestFixture::sample_value();
     EXPECT_TRUE(s.add(val));
     s = s; // Self-assignment
@@ -165,7 +165,7 @@ TYPED_TEST(MySetTypedTest, SelfAssignmentDoesNotChangeSet) {
 }
 
 TYPED_TEST(MySetTypedTest, InequalityOperatorWorks) {
-    MySet<TypeParam> s1, s2;
+    UnorderedSet<TypeParam> s1, s2;
     TypeParam val1 = TestFixture::sample_value();
     TypeParam val2 = val1;
     if constexpr (std::is_same_v<TypeParam, std::string>) {
@@ -179,7 +179,7 @@ TYPED_TEST(MySetTypedTest, InequalityOperatorWorks) {
 }
 
 TYPED_TEST(MySetTypedTest, EqualityOperatorWorks) {
-    MySet<TypeParam> s1, s2;
+    UnorderedSet<TypeParam> s1, s2;
     TypeParam val1 = TestFixture::sample_value();
     s1.add(val1);
     s2.add(val1);
