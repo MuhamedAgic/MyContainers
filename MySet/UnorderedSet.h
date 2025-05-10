@@ -252,6 +252,11 @@ namespace MyContainers {
 
         bool shrink_to_fit() {
             if (m_count < m_capacity) {
+                auto new_data = std::make_unique<T[]>(m_count);
+                for (std::size_t i = 0; i < m_count; ++i) {
+                    new_data[i] = std::move(m_data[i]);
+                }
+                m_data = std::move(new_data);
                 m_capacity = m_count;
                 return true;
             }
