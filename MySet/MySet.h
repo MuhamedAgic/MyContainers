@@ -147,12 +147,12 @@ namespace MyContainers {
         }
 
 
-        std::size_t size() const {
+        [[nodiscard]] std::size_t size() const {
             return this->m_count;
         }
 
 
-        std::size_t capacity() const {
+        [[nodiscard]] std::size_t capacity() const {
             return this->m_capacity;
         }
 
@@ -245,13 +245,13 @@ namespace MyContainers {
         }
 
 
-        bool needs_expansion() const {
-            return this->m_count == this->m_capacity; // dan zit ie vol
+        [[nodiscard]] bool needs_expansion() const {
+            return this->m_count == this->m_capacity;
         }
 
 
         bool expand() {
-            std::size_t new_capacity = this->m_capacity * 2; // even simpel capaciteit verdubbelen
+            std::size_t new_capacity = this->m_capacity * 2; // double capacity for now
             auto new_data = std::make_unique<T[]>(new_capacity);
 
             for (std::size_t i = 0; i < this->m_count; i++) {
