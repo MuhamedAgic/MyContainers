@@ -78,9 +78,9 @@ namespace MyContainers {
                 return *this;
             }
 
-            this->m_capacity = other.m_capacity;
-            this->m_count = other.m_count;
-            this->m_data = std::move(other.m_data);
+            m_capacity = other.m_capacity;
+            m_count = other.m_count;
+            m_data = std::move(other.m_data);
 
             other.m_capacity = 0;
             other.m_count = 0;
@@ -94,10 +94,10 @@ namespace MyContainers {
             // Their size is the same
             // They contain exactly the same elements
             // Order does not matter
-            if (this->m_count != other.m_count) {
+            if (m_count != other.m_count) {
                 return false;
             }
-            for (std::size_t i = 0; i < this->m_count; i++) {
+            for (std::size_t i = 0; i < m_count; i++) {
                 if (!contains(other.m_data[i])) {   // item from other not present in this
                     return false;
                 }
@@ -110,7 +110,7 @@ namespace MyContainers {
             if (index >= m_count) {
                 throw std::out_of_range("Index out of range");
             }
-            return this->m_data[index];
+            return m_data[index];
         }
 
 
@@ -118,7 +118,7 @@ namespace MyContainers {
             if (index >= m_count) {
                 throw std::out_of_range("Index out of range");
             }
-            return this->m_data[index];
+            return m_data[index];
         }
 
 
@@ -148,18 +148,18 @@ namespace MyContainers {
 
 
         [[nodiscard]] std::size_t size() const {
-            return this->m_count;
+            return m_count;
         }
 
 
         [[nodiscard]] std::size_t capacity() const {
-            return this->m_capacity;
+            return m_capacity;
         }
 
 
         const T& at(std::size_t index) const {
-            if (index < this->m_count) {
-                return this->m_data[index];
+            if (index < m_count) {
+                return m_data[index];
             }
             throw std::out_of_range("The given index is out of range");
         }
@@ -174,15 +174,15 @@ namespace MyContainers {
                 expand();
             }
 
-            this->m_data[this->m_count] = std::move(s);
-            ++this->m_count;
+            m_data[m_count] = std::move(s);
+            ++m_count;
 
             return contains(s);
         }
 
 
         bool contains(const T& s) const {
-            for (std::size_t i = 0; i < this->m_count; i++) {
+            for (std::size_t i = 0; i < m_count; i++) {
                 if (m_data[i] == s) {
                     return true;
                 }
@@ -192,10 +192,10 @@ namespace MyContainers {
 
 
         bool remove(const T& s) {
-            for (std::size_t i = 0; i <= this->m_count; i++) {
-                if (this->m_data[i] == s) { // als we s hebben gevonden
+            for (std::size_t i = 0; i <= m_count; i++) {
+                if (m_data[i] == s) { // als we s hebben gevonden
                     shift(i);               // alles een plekje opschuiven om gat te vullen
-                    --this->m_count;
+                    --m_count;
                     return true;
                 }
             }
@@ -204,7 +204,7 @@ namespace MyContainers {
 
 
         void clear() {
-            this->m_count = 0;
+            m_count = 0;
         }
 
 
@@ -223,8 +223,8 @@ namespace MyContainers {
 
 
         void shift(std::size_t index) {
-            while(index < this->m_count) { // alles een plekje naar links schuiven, vul memory gat
-                this->m_data[index] = std::move(this->m_data[index + 1]);
+            while(index < m_count) { // alles een plekje naar links schuiven, vul memory gat
+                m_data[index] = std::move(m_data[index + 1]);
                 ++index;
             }
         }
@@ -232,34 +232,34 @@ namespace MyContainers {
 
         bool copy_to(MySet<T>& other) const {
             // kopieert data van this naar de ander
-            while (other.m_capacity < this->m_count) { // deze set heeft meer elementen dan de ander kan opvangen
+            while (other.m_capacity < m_count) { // deze set heeft meer elementen dan de ander kan opvangen
                 other.expand();
             }
-            for (std::size_t i = 0; i <= this->m_count; i++) {
-                other.m_data[i] = this->m_data[i];
+            for (std::size_t i = 0; i <= m_count; i++) {
+                other.m_data[i] = m_data[i];
             }
-            other.m_count = this->m_count;
-            other.m_capacity = this->m_capacity;
+            other.m_count = m_count;
+            other.m_capacity = m_capacity;
 
             return (*this == other);
         }
 
 
         [[nodiscard]] bool needs_expansion() const {
-            return this->m_count == this->m_capacity;
+            return m_count == m_capacity;
         }
 
 
         bool expand() {
-            std::size_t new_capacity = this->m_capacity * 2; // double capacity for now
+            std::size_t new_capacity = m_capacity * 2; // double capacity for now
             auto new_data = std::make_unique<T[]>(new_capacity);
 
-            for (std::size_t i = 0; i < this->m_count; i++) {
-                new_data[i] = std::move(this->m_data[i]);
+            for (std::size_t i = 0; i < m_count; i++) {
+                new_data[i] = std::move(m_data[i]);
             }
 
-            this->m_data = std::move(new_data);
-            this->m_capacity = new_capacity;
+            m_data = std::move(new_data);
+            m_capacity = new_capacity;
 
             return true;
         }
